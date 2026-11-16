@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>말레이시아 출장 계획서</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#1d2433;--sub:#667085;--line:#e3e6ee;--accent:#2f6fed;--warn:#b54708;--warnbg:#fff4e5}
+@media (prefers-color-scheme:dark){:root{--bg:#12151c;--card:#1b2029;--text:#e8ebf2;--sub:#98a2b3;--line:#2a313d;--accent:#6b9bff;--warn:#fdb022;--warnbg:#2b2214}}
+*{box-sizing:border-box}
+body{margin:0;padding:24px 16px 48px;background:var(--bg);color:var(--text);font-family:"Malgun Gothic",system-ui,sans-serif;line-height:1.6}
+main{max-width:860px;margin:0 auto}
+h1{margin:0 0 4px;font-size:28px}
+.sub{color:var(--sub);margin:0 0 20px}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin-bottom:16px}
+h2{margin:0 0 10px;font-size:19px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--sub);font-weight:600}
+.table-wrap{overflow-x:auto}
+ul{margin:6px 0;padding-left:20px}
+.note{background:var(--warnbg);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:14px;margin:10px 0}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.fact b{display:block;font-size:12px;color:var(--sub);font-weight:600}
+.checklist{list-style:none;padding:0;columns:2;column-gap:24px}
+@media(max-width:600px){.checklist{columns:1}}
+.checklist li{margin:4px 0;break-inside:avoid}
+.checklist li::before{content:"☐ ";color:var(--accent)}
+.must li{font-weight:600}
+.src{font-size:12px;color:var(--sub)}
+a{color:var(--accent)}
+.hero{border-radius:16px;padding:28px 24px;margin-bottom:16px;color:#fff;background:linear-gradient(135deg,#1f4fd8,#12b3a6);position:relative;overflow:hidden}
+.hero h1{color:#fff}.hero .sub{color:#e6f0ff;margin:0}
+.hero .big{position:absolute;right:16px;top:8px;font-size:64px;opacity:.9}
+#map{height:420px;border-radius:12px;border:1px solid var(--line);z-index:0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--sub);margin-top:8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.day{border:1px solid var(--line);border-radius:12px;padding:10px 12px;border-top:4px solid var(--accent)}
+.day b{display:block;margin-bottom:4px}
+.day span{font-size:13px;color:var(--sub)}
+.bar{display:grid;grid-template-columns:130px 1fr 90px;gap:8px;align-items:center;font-size:13px;margin:6px 0}
+.bar i{display:block;height:14px;border-radius:7px;background:var(--accent)}
+.wx{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:10px}
+.wx div{text-align:center;border:1px solid var(--line);border-radius:12px;padding:10px}
+.wx .e{font-size:30px;display:block}
+@media(max-width:600px){.bar{grid-template-columns:100px 1fr 70px}.hero .big{font-size:44px}}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+<main>
+<div class="hero">
+  <span class="big">🇲🇾✈️</span>
+  <h1>말레이시아 출장 계획서</h1>
+  <p class="sub">작성일 2026-11-16 · 에이전트 4명(항공권, 교통·숙소, 날씨·준비물, 서류·안전) 조사 결과</p>
+</div>
+
+<div class="facts">
+  <div class="fact"><b>출발일</b>2026-12-01</div>
+  <div class="fact"><b>경로</b>인천 → 쿠알라룸푸르(KUL)</div>
+  <div class="fact"><b>기간(가정)</b>3박 4일 (12/4 복귀)</div>
+  <div class="fact"><b>날씨</b>낮 29~32℃, 우기</div>
+</div>
+
+<div class="note">⚠️ 출발지(서울), 도착지(쿠알라룸푸르), 기간(3박 4일)은 제가 가정한 값입니다. 실제 일정이 다르면 알려 주세요. 가격과 시간표는 검색 시점 참고치이므로 예약 전에 꼭 다시 확인하세요.</div>
+
+<section>
+  <h2>🗺️ 지도: 공항 → 시내 → 숙소 후보</h2>
+  <div id="map"></div>
+  <div class="legend">
+    <span><span class="dot" style="background:#d92d20"></span>공항</span>
+    <span><span class="dot" style="background:#2f6fed"></span>교통 거점</span>
+    <span><span class="dot" style="background:#12b76a"></span>숙소 후보</span>
+    <span>점선: 공항열차 경로(대략)</span>
+  </div>
+  <p class="src">위치는 대략적인 좌표입니다. 지도가 안 보이면 인터넷 연결을 확인하세요. 출장지가 정해지면 표시해 드리겠습니다.</p>
+</section>
+
+<section>
+  <h2>📅 일정 한눈에 보기 (3박 4일 가정)</h2>
+  <div class="timeline">
+    <div class="day"><b>12/1 (화)</b><span>✈️ 인천 출발 → KUL 도착<br>🚆 공항열차로 시내 이동<br>🏨 체크인</span></div>
+    <div class="day"><b>12/2 (수)</b><span>💼 출장 업무 (회의)<br>☔ 오후 소나기 대비</span></div>
+    <div class="day"><b>12/3 (목)</b><span>💼 출장 업무<br>🛍️ 선물·식사 여유 시간</span></div>
+    <div class="day"><b>12/4 (금)</b><span>🏨 체크아웃<br>🚆 공항 이동 → ✈️ 귀국</span></div>
+  </div>
+  <p class="src">업무 일정은 아직 모르는 상태라 틀만 잡았습니다. 회의 시간과 장소를 알려 주세요.</p>
+</section>
+
+<section>
+  <h2>1. 항공권</h2>
+  <p>12/1 정확한 운임과 시간표는 확인하지 못했습니다. 아래 가격은 다른 날짜의 참고용입니다.</p>
+  <div class="table-wrap"><table>
+    <tr><th>항공사</th><th>직항</th><th>참고 가격</th></tr>
+    <tr><td>대한항공</td><td>직항 (약 6.5시간)</td><td>12/7~14 왕복 약 $469</td></tr>
+    <tr><td>말레이시아항공</td><td>확인 불가</td><td>12/7~14 왕복 약 $529</td></tr>
+    <tr><td>에어아시아X</td><td>직항 (약 6시간 30분)</td><td>11/24~12/2 왕복 약 €267</td></tr>
+  </table></div>
+  <ul>
+    <li>인천발 편도 최저가는 약 20만 원대이고, 12월은 성수기라 더 높을 수 있습니다.</li>
+    <li>수하물 포함 여부는 확인하지 못했습니다. 저비용항공(에어아시아X)은 수하물이 별도 요금인 경우가 많습니다.</li>
+    <li><b>추천:</b> 출장이면 직항에 수하물 조건이 확실한 대한항공을 먼저 비교하고, 에어아시아X와 가격을 견주어 보세요.</li>
+  </ul>
+  <p><b>예약 순서</b></p>
+  <ol>
+    <li>스카이스캐너, 네이버항공권, 카약 중 한 곳에서 ICN→KUL, 12/1 출발, 12/4 복귀, 직항으로 검색합니다.</li>
+    <li>시간, 가격, 수하물 포함 여부를 비교합니다.</li>
+    <li>항공사 공식 사이트에서 같은 편의 가격을 다시 확인합니다.</li>
+    <li>여권 영문 이름이 맞는지 확인한 뒤 직접 결제합니다.</li>
+  </ol>
+  <p class="src">출처: Kayak, HotelsCombined, Cheapflights, monde-du-voyage</p>
+</section>
+
+<section>
+  <h2>2. 서류·비자·안전</h2>
+  <h3>비자와 업무 범위</h3>
+  <ul>
+    <li>한국 여권은 최대 90일 무비자로 체류할 수 있습니다. (외교부 주말레이시아 공관 공지)</li>
+    <li>무비자는 관광, 친지 방문, 단순 회의 참석 같은 비영리 목적만 해당합니다. 근로, 설치·시공, 용역 제공, 수익 활동은 위반이며 구금이나 추방될 수 있습니다.</li>
+    <li>어디까지가 "단순 회의"인지 공식 정의는 확인하지 못했습니다. 계약 체결, 현장 작업, 기술 서비스가 포함되면 말레이시아 이민국(imi.gov.my)이나 주한말레이시아대사관에 서면으로 문의하세요.</li>
+  </ul>
+  <h3>여권</h3>
+  <ul>
+    <li>입국일 기준 유효기간 6개월 이상이 필요합니다. (MIDA 안내) 일부 사이트는 출국일 기준이라고 하니 넉넉히 확인하세요.</li>
+    <li>여권에 빈 페이지가 있어야 합니다. (항공사 안내 기준, 공식 확인은 못 함)</li>
+  </ul>
+  <h3>입국 서류: MDAC(디지털 입국카드)</h3>
+  <ul>
+    <li>무료이며 입국 전에 온라인으로 제출합니다. 공식 사이트: imigresen-online.imi.gov.my/mdac/main</li>
+    <li>도착일 포함 3일 전부터 제출할 수 있습니다. (2차 자료 기준이라 이민국 공지로 재확인하세요.) 12/1 도착이면 11/29부터입니다.</li>
+    <li><b>주의:</b> MDAC 대행을 사칭하며 수수료를 받는 사이트가 있습니다. 외교부가 주의 공지를 냈습니다. 공식 사이트에서만 제출하세요.</li>
+    <li>왕복 항공권, 숙소, 초청장 정보를 준비하세요. (일반 권고)</li>
+  </ul>
+  <h3>안전</h3>
+  <ul>
+    <li>한국 처방약도 성분에 따라 반입이 금지되거나 신고·허가가 필요할 수 있습니다. 영문 처방전과 함께 챙기세요.</li>
+    <li>영사콜센터: +82-2-3210-0404 (24시간, 유료)</li>
+    <li>현지 응급번호는 일반적으로 999(경찰·구급·소방), 휴대폰은 112로 알려져 있지만 공식 확인은 못 했습니다.</li>
+    <li>여행경보 단계는 확인하지 못했습니다. 출발 직전에 외교부 해외안전여행(0404.go.kr)에서 확인하세요.</li>
+  </ul>
+  <h3>여행자 보험 (일반 권고)</h3>
+  <ul>
+    <li>의료비와 긴급 이송 한도를 높게 잡으세요.</li>
+    <li>"업무 출장"도 보장되는지 약관을 확인하세요. 일반 여행자 보험은 업무 활동을 제한하는 경우가 있습니다.</li>
+    <li>회사 단체보험이 있으면 중복 여부를 확인하세요.</li>
+  </ul>
+  <p class="src">출처: 외교부 주말레이시아 코타키나발루 분관 공지, 외교부 영사콜센터 안내, MIDA, 외교부 MDAC 사칭 주의 공지</p>
+</section>
+
+<section>
+  <h2>3. 공항에서 시내까지</h2>
+  <p><b>비용 비교</b> (대략 최대값 기준 막대)</p>
+  <div class="bar"><span>공항버스</span><i style="width:12%"></i><span>RM12~15</span></div>
+  <div class="bar"><span>공항열차</span><i style="width:50%"></i><span>RM55</span></div>
+  <div class="bar"><span>택시(쿠폰)</span><i style="width:91%"></i><span>RM65~100</span></div>
+  <div class="bar"><span>Grab</span><i style="width:100%"></i><span>RM60~110</span></div>
+  <div class="table-wrap"><table>
+    <tr><th>수단</th><th>비용</th><th>시간</th><th>메모</th></tr>
+    <tr><td>KLIA Ekspres(공항열차)</td><td>RM55</td><td>약 28분</td><td>KL Sentral행, 혼자일 때 추천</td></tr>
+    <tr><td>공항버스</td><td>RM12~15</td><td>60~90분</td><td>가장 저렴</td></tr>
+    <tr><td>택시(쿠폰)</td><td>RM65~100</td><td>45~70분</td><td>카운터에서 선결제</td></tr>
+    <tr><td>Grab(택시 앱)</td><td>RM60~110</td><td>45~70분</td><td>앱에서 요금 확인 후 호출</td></tr>
+  </table></div>
+  <ul>
+    <li>짐이 많거나 심야 도착이면 Grab이나 택시가 편합니다.</li>
+    <li>시내에서는 Touch 'n Go 카드(충전식 교통카드, 약 RM10)로 지하철과 버스를 탑니다. 버스는 카드만 됩니다.</li>
+    <li>출퇴근 시간이나 비 올 때는 Grab 요금이 1.5~2배까지 오를 수 있습니다. 그때는 지하철이 빠르고 쌉니다.</li>
+  </ul>
+  <p class="src">출처: Wego, kualalumpurcity.my, Malay Mail(2026-05-22), SAYS, Nomado</p>
+</section>
+
+<section>
+  <h2>4. 숙소 후보</h2>
+  <div class="table-wrap"><table>
+    <tr><th>호텔</th><th>위치</th><th>1박 가격</th><th>평점</th></tr>
+    <tr><td>JW Marriott KL</td><td>부킷빈탕</td><td>USD 120~280</td><td>미확인</td></tr>
+    <tr><td>Impiana KLCC</td><td>KLCC 공원 인접</td><td>약 RM480</td><td>미확인</td></tr>
+    <tr><td>Hilton KL</td><td>KL Sentral (공항열차 환승역)</td><td>USD 175~240</td><td>8.6/10</td></tr>
+  </table></div>
+  <ul>
+    <li>가성비 대안: citizenM 부킷빈탕(USD 55~120), Westin KL(USD 105~250).</li>
+    <li>가격은 날짜 미확인 참고치입니다. Booking.com이나 Agoda에서 12/1~12/4 가격, 무료 취소 여부, 세금 포함 총액을 확인하세요.</li>
+    <li>회사 출장 규정의 숙박비 상한과 영수증 요건을 먼저 확인하세요.</li>
+    <li>출장지가 어디인지 알려 주시면 가까운 숙소로 좁혀 드리겠습니다.</li>
+  </ul>
+  <p class="src">출처: World Travel Guide, Overseas Attractions, Badminton Link, Trip.com</p>
+</section>
+
+<section>
+  <h2>5. 날씨와 환율</h2>
+  <div class="wx">
+    <div><span class="e">🌡️</span>낮 29~32℃</div>
+    <div><span class="e">🌙</span>밤 약 23℃</div>
+    <div><span class="e">💧</span>습도 83~84%</div>
+    <div><span class="e">🌧️</span>우기, 오후 소나기</div>
+    <div><span class="e">💱</span>1RM ≈ 357~381원</div>
+  </div>
+  <ul>
+    <li>낮 약 29~32℃, 밤 약 23℃, 습도 83~84%입니다.</li>
+    <li>우기(북동 몬순)라 오후 소나기가 잦습니다. 출발 전에 MetMalaysia(말레이시아 기상청) 예보를 확인하세요.</li>
+    <li>환율은 1링깃(RM)이 약 357~381원으로 자료마다 다릅니다. 오늘 실시간 값은 못 찾았으니 은행 앱이나 Wise로 확인하세요.</li>
+    <li>카드 사용이 쉽지만 소액은 Touch 'n Go eWallet, GrabPay 같은 QR 결제가 많습니다.</li>
+    <li>Grab 앱은 미리 설치하고, 이심(eSIM, 칩 없는 디지털 유심)은 도착 전에 준비하세요.</li>
+  </ul>
+  <p class="src">출처: WeatherAPI, Weather on this day, Wise, Pluang (자료 편차 큼)</p>
+</section>
+
+<section>
+  <h2>6. 준비물 체크리스트</h2>
+  <h3>잊지 마세요</h3>
+  <ul class="checklist must">
+    <li>여권 (유효기간 6개월 이상)</li>
+    <li>MDAC 제출 확인 화면 (입국 전 온라인 제출)</li>
+    <li>멀티플러그 (타입 G, 약 240V)</li>
+    <li>접이식 우산</li>
+    <li>얇은 겉옷 (실내 냉방이 강함)</li>
+    <li>해외 결제 카드와 소액 링깃 현금</li>
+    <li>유심 또는 이심</li>
+    <li>상비약, 모기 기피제</li>
+  </ul>
+  <h3>서류·돈</h3>
+  <ul class="checklist">
+    <li>항공권·숙소 예약 확인서</li>
+    <li>출장 초청장, 명함</li>
+    <li>해외 결제 카드 2장 이상</li>
+    <li>여행자 보험 (선택)</li>
+  </ul>
+  <h3>옷</h3>
+  <ul class="checklist">
+    <li>얇은 소재 비즈니스 복장 2~3벌</li>
+    <li>속옷·양말 4세트</li>
+    <li>가디건이나 재킷</li>
+    <li>비에 젖어도 괜찮은 구두</li>
+    <li>여벌 셔츠 1벌</li>
+  </ul>
+  <h3>전자기기</h3>
+  <ul class="checklist">
+    <li>충전기, 보조배터리 (기내 휴대)</li>
+    <li>노트북·휴대폰 충전기 (100~240V 지원 확인)</li>
+    <li>이어폰</li>
+  </ul>
+  <h3>세면·약·기타</h3>
+  <ul class="checklist">
+    <li>칫솔·치약, 면도기, 화장품</li>
+    <li>선크림</li>
+    <li>소화제·진통제·지사제·감기약</li>
+    <li>개인 처방약 (영문 처방전)</li>
+    <li>방수 파우치</li>
+    <li>손수건 또는 휴대용 선풍기</li>
+    <li>텀블러</li>
+  </ul>
+</section>
+
+<section>
+  <h2>7. 지금 해야 할 일 (출발까지 15일)</h2>
+  <ol>
+    <li>항공권을 비교하고 예약합니다. 성수기라 서두르세요.</li>
+    <li>숙소를 예약합니다. (무료 취소 요금 추천)</li>
+    <li>출장 업무가 "단순 회의" 범위인지 확인하고, 여권 유효기간(6개월 이상)을 점검합니다.</li>
+    <li>11/29부터 공식 사이트에서 MDAC(디지털 입국카드)를 제출합니다.</li>
+    <li>이심, 멀티플러그, 해외 결제 카드를 준비합니다.</li>
+    <li>출발 3일 전쯤 날씨 예보를 확인하고 준비물을 최종 점검합니다.</li>
+  </ol>
+</section>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  if(!window.L){document.getElementById("map").innerHTML="<p style='padding:16px'>지도를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.</p>";return;}
+  var map=L.map("map");
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap"}).addTo(map);
+  var pts=[
+    ["KLIA 공항(도착)",2.7456,101.7072,"#d92d20","12/1 도착. 공항열차 약 28분"],
+    ["KL Sentral(교통 거점)",3.1343,101.6869,"#2f6fed","공항열차 종점, 지하철·기차 환승"],
+    ["Hilton KL",3.1334,101.6865,"#12b76a","숙소 후보 · USD 175~240 · KL Sentral"],
+    ["JW Marriott KL",3.1488,101.7137,"#12b76a","숙소 후보 · USD 120~280 · 부킷빈탕"],
+    ["Impiana KLCC",3.1537,101.7137,"#12b76a","숙소 후보 · 약 RM480 · KLCC"],
+    ["KLCC(페트로나스 타워)",3.1579,101.7116,"#2f6fed","시내 중심 업무지구"]
+  ];
+  var ll=[];
+  pts.forEach(function(p){
+    var m=L.circleMarker([p[1],p[2]],{radius:9,color:"#fff",weight:2,fillColor:p[3],fillOpacity:1}).addTo(map);
+    var el=document.createElement("div");var b=document.createElement("b");b.textContent=p[0];
+    el.append(b,document.createElement("br"),document.createTextNode(p[4]));
+    m.bindPopup(el);m.bindTooltip(p[0]);
+    ll.push([p[1],p[2]]);
+  });
+  L.polyline([[2.7456,101.7072],[3.1343,101.6869]],{color:"#d92d20",dashArray:"6 8"}).addTo(map);
+  L.polyline([[3.1343,101.6869],[3.1579,101.7116]],{color:"#2f6fed",dashArray:"6 8"}).addTo(map);
+  map.fitBounds(ll,{padding:[30,30]});
+})();
+</script>
+</body>
+</html>
